@@ -227,6 +227,13 @@ exports.getAllUsers = async (req, res, next) => {
     const users = await User.findAll({
       where: whereClause,
       attributes: ["id", "username", "email", "role"],
+      include: [
+        {
+          model: NGOProfile,
+          as: "ngoProfile",
+          attributes: ["id"], // Include NGOProfile ID
+        },
+      ],
       order: [[sortBy || "username", order === "desc" ? "DESC" : "ASC"]],
     });
 

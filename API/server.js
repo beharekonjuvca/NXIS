@@ -17,6 +17,19 @@ app.use("/api/volunteers", volunteerRoutes);
 
 const adminRoutes = require("./routes/adminRoutes");
 app.use("/api/admin", adminRoutes);
+
+const volunteerOpportunityRoutes = require("./routes/volunteerOpportunityRoutes");
+app.use("/api/volunteer-opportunities", volunteerOpportunityRoutes);
+
+const volunteerApplicationRoutes = require("./routes/volunteerApplicationRoutes");
+app.use("/api/volunteer-applications", volunteerApplicationRoutes);
+
+const eventRoutes = require("./routes/eventRoutes");
+app.use("/api/events", eventRoutes);
+
+const eventAttendeeRoutes = require("./routes/eventAttendeeRoutes");
+app.use("/api/event-attendees", eventAttendeeRoutes);
+
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
