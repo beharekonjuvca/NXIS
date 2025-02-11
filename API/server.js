@@ -11,9 +11,12 @@ app.use(express.json());
 // Routes
 const authRoutes = require("./routes/AuthRoutes");
 app.use("/api/auth", authRoutes);
+
 const volunteerRoutes = require("./routes/volunteerRoutes");
 app.use("/api/volunteers", volunteerRoutes);
 
+const adminRoutes = require("./routes/adminRoutes");
+app.use("/api/admin", adminRoutes);
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
