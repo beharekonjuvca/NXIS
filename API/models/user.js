@@ -6,10 +6,18 @@ const bcrypt = require("bcryptjs");
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
     static associate(models) {
-      // associations can be defined here
+      User.hasOne(models.NGOProfile, {
+        foreignKey: "userId",
+        as: "ngoProfile",
+        onDelete: "CASCADE",
+      });
+      User.hasOne(models.VolunteerProfile, {
+        foreignKey: "userId",
+        as: "volunteerProfile",
+        onDelete: "CASCADE",
+      });
     }
 
-    // Method to check password
     validPassword(password) {
       return bcrypt.compareSync(password, this.password);
     }
