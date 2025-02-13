@@ -53,7 +53,14 @@ exports.getAllOpportunities = async (req, res, next) => {
 
     const opportunities = await VolunteerOpportunity.findAll({
       where: whereClause,
-      include: [{ model: NGOProfile, as: "ngo", attributes: ["id", "name"] }],
+      include: [
+        {
+          model: NGOProfile,
+          as: "ngo",
+          where: { status: "approved" },
+          attributes: ["id", "name"],
+        },
+      ],
       order: [[sortBy || "date", order === "desc" ? "DESC" : "ASC"]],
     });
 

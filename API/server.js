@@ -20,6 +20,9 @@ app.use("/api/users", userRoutes);
 const volunteerRoutes = require("./routes/volunteerRoutes");
 app.use("/api/volunteers", volunteerRoutes);
 
+const ngoRoutes = require("./routes/ngoRoutes");
+app.use("/api/ngos", ngoRoutes);
+
 const adminRoutes = require("./routes/adminRoutes");
 app.use("/api/admin", adminRoutes);
 

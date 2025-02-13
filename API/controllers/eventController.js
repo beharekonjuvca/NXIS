@@ -48,7 +48,22 @@ exports.getAllEvents = async (req, res, next) => {
 
     const events = await Event.findAll({
       where: whereClause,
-      include: [{ model: NGOProfile, as: "ngo", attributes: ["id", "name"] }],
+      attributes: [
+        "id",
+        "title",
+        "description",
+        "location",
+        "date",
+        "posterImage",
+      ],
+      include: [
+        {
+          model: NGOProfile,
+          as: "ngo",
+          where: { status: "approved" },
+          attributes: ["id", "name"],
+        },
+      ],
       order: [[sortBy || "date", order === "desc" ? "DESC" : "ASC"]],
     });
 
@@ -63,7 +78,21 @@ exports.getEventById = async (req, res, next) => {
     const { id } = req.params;
 
     const event = await Event.findByPk(id, {
-      include: [{ model: NGOProfile, as: "ngo", attributes: ["id", "name"] }],
+      attributes: [
+        "id",
+        "title",
+        "description",
+        "location",
+        "date",
+        "posterImage",
+      ],
+      include: [
+        {
+          model: NGOProfile,
+          as: "ngo",
+          attributes: ["id", "name"],
+        },
+      ],
     });
 
     if (!event) {
@@ -134,7 +163,38 @@ exports.deleteEvent = async (req, res, next) => {
     next(error);
   }
 };
+exports.uploadEventPoster = async (req, res, next) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: "No file uploaded." });
+    }
 
+    const { eventId } = req.params;
+
+    const event = await Event.findByPk(eventId);
+    if (!event) {
+      return res.status(404).json({ error: "Event not found." });
+    }
+
+    if (event.posterImage) {
+      const oldPath = path.join(__dirname, "..", event.posterImage);
+      if (fs.existsSync(oldPath)) {
+        fs.unlinkSync(oldPath);
+      }
+    }
+
+    event.posterImage = `/uploads/event_posters/${req.file.filename}`;
+    await event.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Event poster uploaded successfully!",
+      posterImage: event.posterImage,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 exports.rsvpEvent = async (req, res, next) => {
   try {
     const { eventId } = req.params;

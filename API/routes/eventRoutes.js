@@ -6,6 +6,24 @@ const {
 } = require("../middleware/authMiddleware");
 const eventController = require("../controllers/eventController");
 
+const multer = require("multer");
+
+const storage = multer.diskStorage({
+  destination: "uploads/event_posters/",
+  filename: (req, file, cb) => {
+    cb(null, `event-${req.params.eventId}-${Date.now()}.jpg`);
+  },
+});
+const upload = multer({ storage });
+
+router.post(
+  "/:eventId/upload-poster",
+  authenticateToken,
+  authorizeRoles("ngo"),
+  upload.single("posterImage"),
+  eventController.uploadEventPoster
+);
+
 router.get("/", eventController.getAllEvents);
 router.get("/:id", eventController.getEventById);
 
