@@ -46,6 +46,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.ENUM("volunteer", "ngo", "admin"),
         defaultValue: "volunteer",
       },
+      profilePicture: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
     },
     {
       sequelize,

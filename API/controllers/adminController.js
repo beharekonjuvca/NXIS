@@ -178,12 +178,18 @@ exports.approveNGO = async (req, res, next) => {
       return res.status(404).json({ error: "NGO not found." });
     }
 
+    if (ngo.status === "approved") {
+      return res.status(400).json({ error: "NGO is already approved." });
+    }
+
     ngo.status = "approved";
     await ngo.save();
 
-    res
-      .status(200)
-      .json({ success: true, message: "NGO approved successfully." });
+    res.status(200).json({
+      success: true,
+      message: "NGO approved successfully.",
+      ngo,
+    });
   } catch (error) {
     next(error);
   }
@@ -211,7 +217,8 @@ exports.rejectNGO = async (req, res, next) => {
 
 exports.getAllUsers = async (req, res, next) => {
   try {
-    const { search, role, sortBy, order } = req.query;
+    const { search, role, status, startDate, endDate, sortBy, order } =
+      req.query;
 
     let whereClause = {};
     if (search) {
@@ -223,6 +230,14 @@ exports.getAllUsers = async (req, res, next) => {
     if (role) {
       whereClause.role = role;
     }
+    if (status) {
+      whereClause["$ngoProfile.status$"] = status;
+    }
+    if (startDate && endDate) {
+      whereClause.createdAt = {
+        [Op.between]: [new Date(startDate), new Date(endDate)],
+      };
+    }
 
     const users = await User.findAll({
       where: whereClause,
@@ -231,7 +246,7 @@ exports.getAllUsers = async (req, res, next) => {
         {
           model: NGOProfile,
           as: "ngoProfile",
-          attributes: ["id"], // Include NGOProfile ID
+          attributes: ["id", "status"],
         },
       ],
       order: [[sortBy || "username", order === "desc" ? "DESC" : "ASC"]],
@@ -256,6 +271,28 @@ exports.deleteUser = async (req, res, next) => {
     res
       .status(200)
       .json({ success: true, message: "User deleted successfully." });
+  } catch (error) {
+    next(error);
+  }
+};
+exports.getPlatformStats = async (req, res, next) => {
+  try {
+    const totalUsers = await User.count();
+    const totalNGOs = await NGOProfile.count();
+    const totalVolunteers = await VolunteerProfile.count();
+    const totalPendingNGOs = await NGOProfile.count({
+      where: { status: "pending" },
+    });
+
+    res.status(200).json({
+      success: true,
+      stats: {
+        totalUsers,
+        totalNGOs,
+        totalVolunteers,
+        totalPendingNGOs,
+      },
+    });
   } catch (error) {
     next(error);
   }

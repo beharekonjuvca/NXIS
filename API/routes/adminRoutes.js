@@ -5,6 +5,7 @@ const {
   getAllUsers,
   deleteUser,
   rejectNGO,
+  getPlatformStats,
 } = require("../controllers/adminController");
 const {
   authenticateToken,
@@ -24,6 +25,12 @@ router.patch(
   rejectNGO
 );
 router.get("/users", authenticateToken, authorizeRoles("admin"), getAllUsers);
+router.get(
+  "/stats",
+  authenticateToken,
+  authorizeRoles("admin"),
+  getPlatformStats
+);
 router.delete(
   "/user/:userId",
   authenticateToken,

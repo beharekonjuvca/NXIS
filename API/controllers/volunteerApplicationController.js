@@ -4,6 +4,7 @@ const {
   VolunteerOpportunity,
   User,
   NGOProfile,
+  VolunteerProfile,
 } = require("../models");
 
 exports.applyForOpportunity = async (req, res, next) => {
@@ -45,27 +46,9 @@ exports.applyForOpportunity = async (req, res, next) => {
 };
 
 exports.getApplicantsForOpportunity = async (req, res, next) => {
+  const { opportunityId } = req.params;
+
   try {
-    const { opportunityId } = req.params;
-
-    if (req.user.role !== "ngo") {
-      return res.status(403).json({ error: "Only NGOs can view applicants." });
-    }
-
-    const opportunity = await VolunteerOpportunity.findByPk(opportunityId);
-    if (!opportunity) {
-      return res.status(404).json({ error: "Opportunity not found." });
-    }
-
-    const ngoProfile = await NGOProfile.findOne({
-      where: { userId: req.user.id },
-    });
-    if (opportunity.ngoId !== ngoProfile.id) {
-      return res.status(403).json({
-        error: "Unauthorized to view applicants for this opportunity.",
-      });
-    }
-
     const applications = await VolunteerApplication.findAll({
       where: { opportunityId },
       include: [
@@ -73,16 +56,32 @@ exports.getApplicantsForOpportunity = async (req, res, next) => {
           model: User,
           as: "volunteer",
           attributes: ["id", "username", "email"],
+          include: [
+            {
+              model: VolunteerProfile,
+              as: "volunteerProfile",
+              attributes: ["skills", "availability", "resumePDF"],
+            },
+          ],
         },
       ],
     });
 
-    res.status(200).json({ success: true, applications });
+    res.status(200).json({
+      success: true,
+      applicants: applications.map((app) => ({
+        id: app.volunteer.id,
+        username: app.volunteer.username,
+        email: app.volunteer.email,
+        skills: app.volunteer.volunteerProfile?.skills,
+        availability: app.volunteer.volunteerProfile?.availability,
+        resume: app.volunteer.volunteerProfile?.resumePDF,
+      })),
+    });
   } catch (error) {
     next(error);
   }
 };
-
 exports.updateApplicationStatus = async (req, res, next) => {
   try {
     const { applicationId } = req.params;

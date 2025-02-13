@@ -3,14 +3,19 @@ const cors = require("cors");
 require("dotenv").config();
 const errorHandler = require("./middleware/errorHandler");
 const app = express();
+const path = require("path");
 
 // Middleware
 app.use(cors());
 app.use(express.json());
 
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 // Routes
 const authRoutes = require("./routes/AuthRoutes");
 app.use("/api/auth", authRoutes);
+
+const userRoutes = require("./routes/userRoutes");
+app.use("/api/users", userRoutes);
 
 const volunteerRoutes = require("./routes/volunteerRoutes");
 app.use("/api/volunteers", volunteerRoutes);
