@@ -37,11 +37,15 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.ENUM("pending", "approved", "rejected"),
         defaultValue: "pending",
       },
+      hoursWorked: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        defaultValue: 0,
+      },
     },
     {
       sequelize,
       modelName: "VolunteerApplication",
-      timestamps: true,
     }
   );
 

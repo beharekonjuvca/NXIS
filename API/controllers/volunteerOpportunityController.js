@@ -1,7 +1,8 @@
 "use strict";
 const { VolunteerOpportunity, NGOProfile, User } = require("../models");
 const { Op } = require("sequelize");
-
+const fs = require("fs");
+const path = require("path");
 exports.createOpportunity = async (req, res, next) => {
   try {
     const { title, description, location, date, requirements } = req.body;
@@ -36,6 +37,39 @@ exports.createOpportunity = async (req, res, next) => {
   }
 };
 
+exports.uploadOpportunityPicture = async (req, res, next) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: "No file uploaded." });
+    }
+
+    const { opportunityId } = req.params;
+    const opportunity = await VolunteerOpportunity.findByPk(opportunityId);
+
+    if (!opportunity) {
+      return res.status(404).json({ error: "Opportunity not found." });
+    }
+
+    if (opportunity.picture) {
+      const oldPath = path.join(__dirname, "..", opportunity.picture);
+      if (fs.existsSync(oldPath)) {
+        fs.unlinkSync(oldPath);
+      }
+    }
+
+    opportunity.picture = `/uploads/opportunities/${req.file.filename}`;
+    await opportunity.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Opportunity picture uploaded successfully!",
+      picture: opportunity.picture,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 exports.getAllOpportunities = async (req, res, next) => {
   try {
     const { search, location, sortBy, order } = req.query;
@@ -61,6 +95,7 @@ exports.getAllOpportunities = async (req, res, next) => {
           attributes: ["id", "name"],
         },
       ],
+      attributes: ["id", "title", "description", "location", "date", "image"],
       order: [[sortBy || "date", order === "desc" ? "DESC" : "ASC"]],
     });
 
@@ -70,12 +105,14 @@ exports.getAllOpportunities = async (req, res, next) => {
   }
 };
 
+// Get Opportunity By ID (Include Picture)
 exports.getOpportunityById = async (req, res, next) => {
   try {
     const { id } = req.params;
 
     const opportunity = await VolunteerOpportunity.findByPk(id, {
       include: [{ model: NGOProfile, as: "ngo", attributes: ["id", "name"] }],
+      attributes: ["id", "title", "description", "location", "date", "image"],
     });
 
     if (!opportunity) {

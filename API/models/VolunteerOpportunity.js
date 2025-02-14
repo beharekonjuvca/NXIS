@@ -41,8 +41,8 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.DATE,
         allowNull: false,
       },
-      requirements: {
-        type: DataTypes.TEXT,
+      image: {
+        type: DataTypes.STRING,
         allowNull: true,
       },
     },
