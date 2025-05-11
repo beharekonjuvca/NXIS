@@ -95,3 +95,23 @@ exports.deleteNGOProfile = async (req, res, next) => {
     next(error);
   }
 };
+exports.getMyNGOProfile = async (req, res, next) => {
+  try {
+    const ngo = await NGOProfile.findOne({
+      where: { userId: req.user.id },
+      include: [
+        {
+          model: User,
+          as: "user",
+          attributes: ["id", "username", "email", "profilePicture"],
+        },
+      ],
+    });
+
+    if (!ngo) return res.status(404).json({ error: "NGO not found." });
+
+    res.status(200).json({ success: true, ngo });
+  } catch (error) {
+    next(error);
+  }
+};

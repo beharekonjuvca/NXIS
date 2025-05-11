@@ -1,0 +1,25 @@
+.nxis-footer {
+  background-color: #f9f9f9;
+  color: #444;
+  text-align: center;
+  padding: 1.5rem 1rem;
+  font-size: 0.95rem;
+  margin-top: auto;
+  border-top: 1px solid #ddd;
+}
+
+.nxis-footer-links {
+  margin-top: 0.5rem;
+}
+
+.nxis-footer-links a {
+  margin: 0 0.5rem;
+  color: #0077ff;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.nxis-footer-links a:hover {
+  color: #0051a2;
+}

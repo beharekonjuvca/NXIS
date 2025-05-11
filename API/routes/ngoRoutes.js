@@ -29,5 +29,11 @@ router.get(
   authorizeRoles("volunteer", "admin", "ngo"),
   ngoController.getApprovedNGOs
 );
+router.get(
+  "/profile/me",
+  authenticateToken,
+  authorizeRoles("ngo"),
+  ngoController.getMyNGOProfile
+);
 
 module.exports = router;

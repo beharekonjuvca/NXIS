@@ -174,3 +174,18 @@ exports.refreshToken = (req, res) => {
     });
   });
 };
+exports.validateToken = async (req, res) => {
+  try {
+    const user = await User.findByPk(req.user.id, {
+      attributes: ["id", "username", "email", "role"],
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found." });
+    }
+
+    return res.status(200).json({ success: true, user });
+  } catch (error) {
+    return res.status(500).json({ error: "Server error" });
+  }
+};

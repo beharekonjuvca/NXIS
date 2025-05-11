@@ -52,5 +52,11 @@ router.post(
   authorizeRoles("volunteer"),
   eventController.rsvpEvent
 );
+router.get(
+  "/ngo/mine",
+  authenticateToken,
+  authorizeRoles("ngo"),
+  eventController.getMyEvents
+);
 
 module.exports = router;

@@ -230,3 +230,23 @@ exports.rsvpEvent = async (req, res, next) => {
     next(error);
   }
 };
+exports.getMyEvents = async (req, res, next) => {
+  try {
+    const ngoProfile = await NGOProfile.findOne({
+      where: { userId: req.user.id },
+    });
+
+    if (!ngoProfile) {
+      return res.status(404).json({ error: "NGO profile not found." });
+    }
+
+    const events = await Event.findAll({
+      where: { ngoId: ngoProfile.id },
+      order: [["date", "DESC"]],
+    });
+
+    res.status(200).json({ success: true, events });
+  } catch (error) {
+    next(error);
+  }
+};
